@@ -29,3 +29,9 @@ Route::get('/', function () {
 Route::group(['middleware' => ['web']], function () {
     //
 });
+
+Route::group(['prefix'=> 'admin'], function(){
+    Route::get('login', ['as' => 'admin.getLogin', 'uses' => 'Auth\AuthController@getLogin']);
+    Route::post('login', ['as' => 'admin.postLogin' , 'uses'=> 'Auth\AuthController@postLogin']);
+    Route::get('dashboard', ['as'=> 'admin.dashboard', 'uses'=> 'Auth\AuthController@dashboard']);
+});

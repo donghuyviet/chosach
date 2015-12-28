@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use Illuminate\Auth\Events\Login;
 use Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
-
+use App\Http\Requests\LoginRequest;
+use Auth;
 class AuthController extends Controller
 {
     /*
@@ -40,6 +42,24 @@ class AuthController extends Controller
         $this->middleware('guest', ['except' => 'logout']);
     }
 
+    public function getLogin(){
+        return view('admin.login');
+    }
+
+    public function postLogin(LoginRequest $request){
+        $auth = array('email' => $request->email,
+                'password' => $request->password
+            );
+        if(Auth::attempt($auth)){
+            return redirect('admin/dashboard');
+        } else {
+            return redirect('admin/login');
+        }
+    }
+    public function dashboard(){
+        return view('admin.master');
+    }
+
     /**
      * Get a validator for an incoming registration request.
      *
@@ -47,8 +67,7 @@ class AuthController extends Controller
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
-    {
-        return Validator::make($data, [
+    {return Validator::make($data, [
             'name' => 'required|max:255',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|confirmed|min:6',
