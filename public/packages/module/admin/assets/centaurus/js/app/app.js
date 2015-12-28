@@ -1,0 +1,1 @@
+var bonggie = angular.module('bonggie', ['ngRoute'])
