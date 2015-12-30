@@ -51,6 +51,10 @@ abstract class Helper implements HelperInterface
      */
     public static function strlen($string)
     {
+        if (!function_exists('mb_strwidth')) {
+            return strlen($string);
+        }
+
         if (false === $encoding = mb_detect_encoding($string, null, true)) {
             return strlen($string);
         }

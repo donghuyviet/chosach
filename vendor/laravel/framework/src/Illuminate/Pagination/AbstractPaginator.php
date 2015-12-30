@@ -4,9 +4,8 @@ namespace Illuminate\Pagination;
 
 use Closure;
 use ArrayIterator;
-use Illuminate\Contracts\Support\Htmlable;
 
-abstract class AbstractPaginator implements Htmlable
+abstract class AbstractPaginator
 {
     /**
      * All of the items being paginated.
@@ -236,10 +235,6 @@ abstract class AbstractPaginator implements Htmlable
      */
     public function firstItem()
     {
-        if (count($this->items) === 0) {
-            return;
-        }
-
         return ($this->currentPage - 1) * $this->perPage + 1;
     }
 
@@ -250,10 +245,6 @@ abstract class AbstractPaginator implements Htmlable
      */
     public function lastItem()
     {
-        if (count($this->items) === 0) {
-            return;
-        }
-
         return $this->firstItem() + $this->count() - 1;
     }
 
@@ -473,16 +464,6 @@ abstract class AbstractPaginator implements Htmlable
     }
 
     /**
-     * Render the contents of the paginator to HTML.
-     *
-     * @return string
-     */
-    public function toHtml()
-    {
-        return (string) $this->render();
-    }
-
-    /**
      * Make dynamic calls into the collection.
      *
      * @param  string  $method
@@ -501,6 +482,6 @@ abstract class AbstractPaginator implements Htmlable
      */
     public function __toString()
     {
-        return (string) $this->render();
+        return $this->render();
     }
 }

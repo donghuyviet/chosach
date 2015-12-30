@@ -91,7 +91,7 @@ class HandleExceptions
      * @param  \Exception  $e
      * @return void
      */
-    protected function renderForConsole(Exception $e)
+    protected function renderForConsole($e)
     {
         $this->getExceptionHandler()->renderForConsole(new ConsoleOutput, $e);
     }
@@ -102,7 +102,7 @@ class HandleExceptions
      * @param  \Exception  $e
      * @return void
      */
-    protected function renderHttpResponse(Exception $e)
+    protected function renderHttpResponse($e)
     {
         $this->getExceptionHandler()->render($this->app['request'], $e)->send();
     }

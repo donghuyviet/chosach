@@ -6,7 +6,6 @@ use Closure;
 use DateTime;
 use ArrayAccess;
 use Carbon\Carbon;
-use BadMethodCallException;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Support\Traits\Macroable;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -70,19 +69,8 @@ class Repository implements CacheContract, ArrayAccess
      */
     protected function fireCacheEvent($event, $payload)
     {
-        if (! isset($this->events)) {
-            return;
-        }
-
-        switch ($event) {
-            case 'hit':
-                return $this->events->fire(new Events\CacheHit($payload[0], $payload[1]));
-            case 'missed':
-                return $this->events->fire(new Events\CacheMissed($payload[0]));
-            case 'delete':
-                return $this->events->fire(new Events\KeyForgotten($payload[0]));
-            case 'write':
-                return $this->events->fire(new Events\KeyWritten($payload[0], $payload[1], $payload[2]));
+        if (isset($this->events)) {
+            $this->events->fire('cache.'.$event, $payload);
         }
     }
 
@@ -106,11 +94,7 @@ class Repository implements CacheContract, ArrayAccess
      */
     public function get($key, $default = null)
     {
-        if (is_array($key)) {
-            return $this->many($key);
-        }
-
-        $value = $this->store->get($this->itemKey($key));
+        $value = $this->store->get($key);
 
         if (is_null($value)) {
             $this->fireCacheEvent('missed', [$key]);
@@ -121,37 +105,6 @@ class Repository implements CacheContract, ArrayAccess
         }
 
         return $value;
-    }
-
-    /**
-     * Retrieve multiple items from the cache by key.
-     *
-     * Items not found in the cache will have a null value.
-     *
-     * @param  array  $keys
-     * @return array
-     */
-    public function many(array $keys)
-    {
-        $normalizedKeys = [];
-
-        foreach ($keys as $key => $value) {
-            $normalizedKeys[] = is_string($key) ? $key : $value;
-        }
-
-        $values = $this->store->many($normalizedKeys);
-
-        foreach ($values as $key => &$value) {
-            if (is_null($value)) {
-                $this->fireCacheEvent('missed', [$key]);
-
-                $value = isset($keys[$key]) ? value($keys[$key]) : null;
-            } else {
-                $this->fireCacheEvent('hit', [$key, $value]);
-            }
-        }
-
-        return $values;
     }
 
     /**
@@ -178,38 +131,14 @@ class Repository implements CacheContract, ArrayAccess
      * @param  \DateTime|int  $minutes
      * @return void
      */
-    public function put($key, $value, $minutes = null)
+    public function put($key, $value, $minutes)
     {
-        if (is_array($key) && filter_var($value, FILTER_VALIDATE_INT) !== false) {
-            return $this->putMany($key, $value);
-        }
-
         $minutes = $this->getMinutes($minutes);
 
         if (! is_null($minutes)) {
-            $this->store->put($this->itemKey($key), $value, $minutes);
+            $this->store->put($key, $value, $minutes);
 
             $this->fireCacheEvent('write', [$key, $value, $minutes]);
-        }
-    }
-
-    /**
-     * Store multiple items in the cache for a given number of minutes.
-     *
-     * @param  array  $values
-     * @param  int  $minutes
-     * @return void
-     */
-    public function putMany(array $values, $minutes)
-    {
-        $minutes = $this->getMinutes($minutes);
-
-        if (! is_null($minutes)) {
-            $this->store->putMany($values, $minutes);
-
-            foreach ($values as $key => $value) {
-                $this->fireCacheEvent('write', [$key, $value, $minutes]);
-            }
         }
     }
 
@@ -230,7 +159,7 @@ class Repository implements CacheContract, ArrayAccess
         }
 
         if (method_exists($this->store, 'add')) {
-            return $this->store->add($this->itemKey($key), $value, $minutes);
+            return $this->store->add($key, $value, $minutes);
         }
 
         if (is_null($this->get($key))) {
@@ -251,7 +180,7 @@ class Repository implements CacheContract, ArrayAccess
      */
     public function forever($key, $value)
     {
-        $this->store->forever($this->itemKey($key), $value);
+        $this->store->forever($key, $value);
 
         $this->fireCacheEvent('write', [$key, $value, 0]);
     }
@@ -319,60 +248,11 @@ class Repository implements CacheContract, ArrayAccess
      */
     public function forget($key)
     {
-        $success = $this->store->forget($this->itemKey($key));
+        $success = $this->store->forget($key);
 
         $this->fireCacheEvent('delete', [$key]);
 
         return $success;
-    }
-
-    /**
-     * Begin executing a new tags operation if the store supports it.
-     *
-     * @param  string  $name
-     * @return \Illuminate\Cache\TaggedCache
-     *
-     * @deprecated since version 5.1. Use tags instead.
-     */
-    public function section($name)
-    {
-        return $this->tags($name);
-    }
-
-    /**
-     * Begin executing a new tags operation if the store supports it.
-     *
-     * @param  array|mixed  $names
-     * @return \Illuminate\Cache\TaggedCache
-     *
-     * @throws \BadMethodCallException
-     */
-    public function tags($names)
-    {
-        if (method_exists($this->store, 'tags')) {
-            $taggedCache = $this->store->tags($names);
-
-            if (! is_null($this->events)) {
-                $taggedCache->setEventDispatcher($this->events);
-            }
-
-            $taggedCache->setDefaultCacheTime($this->default);
-
-            return $taggedCache;
-        }
-
-        throw new BadMethodCallException('This cache store does not support tagging.');
-    }
-
-    /**
-     * Format the key for a cache item.
-     *
-     * @param  string  $key
-     * @return string
-     */
-    protected function itemKey($key)
-    {
-        return $key;
     }
 
     /**

@@ -10,16 +10,16 @@
     <title>Admin - Khoa Phạm</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="{!! url('public/admin/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}" rel="stylesheet">
+    <link href="{!! url('admin/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}" rel="stylesheet">
 
     <!-- MetisMenu CSS -->
-    <link href="{!! url('public/admin/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
+    <link href="{!! url('admin/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="{!! url('public/admin/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}dist/css/sb-admin-2.css" rel="stylesheet">
+    <link href="{!! url('admin/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}dist/css/sb-admin-2.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="{!! url('public/admin/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="{!! url('admin/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
 </head>
 
@@ -33,7 +33,17 @@
                     <h3 class="panel-title">Please Log In</h3>
                 </div>
                 <div class="panel-body">
+                    @if(count($errors) > 0)
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{!! $error !!}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <form role="form" action="" method="POST">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}"
                         <fieldset>
                             <div class="form-group">
                                 <input class="form-control" placeholder="E-mail" name="email" type="email" autofocus>
@@ -51,16 +61,16 @@
 </div>
 
 <!-- jQuery -->
-<script src="{!! url('public/admin/bower_components/jquery/dist/jquery.min.js') !!}"></script>
+<script src="{!! url('admin/bower_components/jquery/dist/jquery.min.js') !!}"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="{!! url('public/admin/bower_components/bootstrap/dist/js/bootstrap.min.js') !!}"></script>
+<script src="{!! url('admin/bower_components/bootstrap/dist/js/bootstrap.min.js') !!}"></script>
 
 <!-- Metis Menu Plugin JavaScript -->
-<script src="{!! url('public/admin/bower_components/metisMenu/dist/metisMenu.min.js') !!}"></script>
+<script src="{!! url('admin/bower_components/metisMenu/dist/metisMenu.min.js') !!}"></script>
 
 <!-- Custom Theme JavaScript -->
-<script src="{!! url('public/admin/dist/js/sb-admin-2.js') !!}"></script>
+<script src="{!! url('admin/dist/js/sb-admin-2.js') !!}"></script>
 
 </body>
 

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Eloquent\Model;
 
 class DatabaseSeeder extends Seeder
 {
@@ -11,21 +12,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(UserTableSeeder::class);
-    }
-}
-class UserTableSeeder extends Seeder
-{
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
-    {
+        Model::unguard();
 
-        DB::table('users')->insert([
-            array('name' => 'admin', 'password'=> Hash::make(123123), 'email'=> 'quannguyen1456@gmail.com')
-        ]);
+        // $this->call('UserTableSeeder');
+
+        Model::reguard();
     }
 }

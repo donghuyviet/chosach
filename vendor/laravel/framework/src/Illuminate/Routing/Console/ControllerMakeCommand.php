@@ -19,7 +19,7 @@ class ControllerMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Create a new controller class';
+    protected $description = 'Create a new resource controller class';
 
     /**
      * The type of class being generated.
@@ -35,11 +35,11 @@ class ControllerMakeCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        if ($this->option('resource')) {
-            return __DIR__.'/stubs/controller.stub';
+        if ($this->option('plain')) {
+            return __DIR__.'/stubs/controller.plain.stub';
         }
 
-        return __DIR__.'/stubs/controller.plain.stub';
+        return __DIR__.'/stubs/controller.stub';
     }
 
     /**
@@ -61,7 +61,7 @@ class ControllerMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['resource', null, InputOption::VALUE_NONE, 'Generate a resource controller class.'],
+            ['plain', null, InputOption::VALUE_NONE, 'Generate an empty controller class.'],
         ];
     }
 }

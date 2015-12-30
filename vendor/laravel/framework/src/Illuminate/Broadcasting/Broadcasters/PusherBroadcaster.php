@@ -32,14 +32,4 @@ class PusherBroadcaster implements Broadcaster
     {
         $this->pusher->trigger($channels, $event, $payload);
     }
-
-    /**
-     * Get the Pusher SDK instance.
-     *
-     * @return \Pusher
-     */
-    public function getPusher()
-    {
-        return $this->pusher;
-    }
 }

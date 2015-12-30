@@ -159,7 +159,7 @@ class StartSession
      */
     protected function configHitsLottery(array $config)
     {
-        return random_int(1, $config['lottery'][1]) <= $config['lottery'][0];
+        return mt_rand(1, $config['lottery'][1]) <= $config['lottery'][0];
     }
 
     /**

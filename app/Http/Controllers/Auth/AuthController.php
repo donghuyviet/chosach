@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
-use Illuminate\Auth\Events\Login;
 use Validator;
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use App\Http\Requests\LoginRequest;
 use Auth;
@@ -23,25 +21,25 @@ class AuthController extends Controller
     |
     */
 
-    use AuthenticatesAndRegistersUsers, ThrottlesLogins;
-
-    /**
-     * Where to redirect users after login / registration.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/home';
+    use AuthenticatesAndRegistersUsers;
 
     /**
      * Create a new authentication controller instance.
      *
      * @return void
      */
+    protected $redirectPath = '/';
     public function __construct()
     {
-        $this->middleware('guest', ['except' => 'logout']);
+        $this->middleware('guest', ['except' => 'getLogout']);
     }
 
+    /**
+     * Get a validator for an incoming registration request.
+     *
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
     public function getLogin(){
         return view('admin.login');
     }
@@ -51,23 +49,26 @@ class AuthController extends Controller
                 'password' => $request->password
             );
         if(Auth::attempt($auth)){
-            return redirect('admin/dashboard');
+            return redirect()->route('admin.dashboard');
         } else {
-            return redirect('admin/login');
+            return redirect()->route('admin.logout');
         }
     }
+
     public function dashboard(){
         return view('admin.master');
     }
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
+    public function getLogout(){
+        if(Auth::check()){
+            Auth::logout();
+            return redirect('admin/login');
+        }
+    }
+
     protected function validator(array $data)
-    {return Validator::make($data, [
+    {
+        return Validator::make($data, [
             'name' => 'required|max:255',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|confirmed|min:6',
