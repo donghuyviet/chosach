@@ -12,7 +12,20 @@
                     </div>
                     <!-- /.col-lg-12 -->
                     <div class="col-lg-7" style="padding-bottom:120px">
-                        <form action="" method="POST">
+                        @if(count($errors) > 0)
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach($errors->all() as $error)
+                                        <li>{!! $error !!}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @if(Session::has('flash_message'))
+                            <div class="alert alert-{{ Session::get('flash_level')}}">{{ Session::get('flash_message') }}</div>
+                        @endif
+                        <form action="{{ route('user.store') }}" method="POST">
+                            {!! csrf_field() !!}
                             <div class="form-group">
                                 <label>Username</label>
                                 <input class="form-control" name="txtUser" placeholder="Please Enter Username" />

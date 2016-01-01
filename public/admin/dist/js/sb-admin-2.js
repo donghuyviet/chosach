@@ -34,3 +34,5 @@ $(function() {
         element.addClass('active');
     }
 });
+
+$("div.alert").delay(3000).slideUp();

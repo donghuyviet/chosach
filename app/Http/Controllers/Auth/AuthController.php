@@ -51,7 +51,7 @@ class AuthController extends Controller
         if(Auth::attempt($auth)){
             return redirect()->route('admin.dashboard');
         } else {
-            return redirect()->route('admin.logout');
+            return redirect()->route('admin.getLogin')->with(['flash_level'=> 'danger', 'flash_message' => 'Email hoặc password chưa đúng, vui lòng nhập lại!']);;
         }
     }
 
@@ -62,7 +62,7 @@ class AuthController extends Controller
     public function getLogout(){
         if(Auth::check()){
             Auth::logout();
-            return redirect('admin/login');
+            return redirect()->route('admin.getLogin');
         }
     }
 
