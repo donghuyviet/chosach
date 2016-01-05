@@ -28,18 +28,12 @@ class AuthController extends Controller
      *
      * @return void
      */
-    protected $redirectPath = '/auth/login';
     public function __construct()
     {
         $this->middleware('guest', ['except' => 'getLogout']);
     }
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
+
 //    public function getLogin(){
 //        return view('admin.login');
 //    }
@@ -54,18 +48,23 @@ class AuthController extends Controller
 //            return redirect()->back()->with(['flash_level'=> 'danger', 'flash_message' => 'Email hoặc password chưa đúng, vui lòng nhập lại!']);;
 //        }
 //    }
-//
+
     public function dashboard(){
         return view('admin.master');
     }
-//
+
 //    public function getLogout(){
 //        if(Auth::check()){
 //            Auth::logout();
 //            return redirect()->route('admin.getLogin');
 //        }
 //    }
-
+    /**
+     * Get a validator for an incoming registration request.
+     *
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
     protected function validator(array $data)
     {
         return Validator::make($data, [

@@ -19,18 +19,23 @@ Route::get('/', function () {
 //	Route::group(['prefix'=> 'admin'], function(){
 //	    Route::get('login', 	['as' 	=> 'admin.getLogin', 'uses' 	=> 'AuthController@getLogin']);
 //	    Route::post('login', 	['as' 	=> 'admin.postLogin' , 'uses'	=> 'AuthController@postLogin']);
-//	    Route::get('dashboard', ['as'	=> 'admin.dashboard', 'uses'	=> 'AuthController@dashboard']);
+//
 //	    Route::get('logout',  	['as' 	=>  'admin.logout',  'uses' 	=> 'AuthController@getLogout']);
 //	});
 //});
 
 Route::group(['namespace' => 'Auth'], function(){
-	Route::group(['prefix'=> 'auth'], function(){
-		Route::get('login', 	['as' 	=> 'login', 'uses' 	=> 'AuthController@getLogin']);
-		Route::post('login', 'AuthController@postLogin');
-		Route::get('register' , ['as' 	=> 'register', 'uses' 	=> 'AuthController@getRegister']);
-		Route::post('register', 'AuthController@postRegister');
-		Route::get('logout',  	['as' 	=>  'logout',  'uses' 	=> 'AuthController@getLogout']);
-	});
+		Route::group(['prefix' => 'auth'], function () {
+			Route::get('login', ['as' => 'login', 'uses' => 'AuthController@getLogin']);
+			Route::post('login', 'AuthController@postLogin');
+			Route::get('register', ['as' => 'register', 'uses' => 'AuthController@getRegister']);
+			Route::post('register', 'AuthController@postRegister');
+			Route::get('logout', ['as' => 'logout', 'uses' => 'AuthController@getLogout']);
+		});
+	Route::get('dashboard', ['middleware' => 'auth','uses'	=> 'AuthController@dashboard']);
 });
-Route::resource('user', 'UserController');
+//Route::resource('user', 'UserController');
+Route::group(['middleware' => 'admin'], function()
+{
+	Route::resource('user', 'UserController');
+});

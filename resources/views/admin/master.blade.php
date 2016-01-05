@@ -9,26 +9,24 @@
     <title>Admin - Khoa Phạm</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="{{ url('admin/bower_components/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url('admin/css/bootstrap.min.css') }}" rel="stylesheet"/>
 
     <!-- MetisMenu CSS -->
-    <link href="{{ url('admin/bower_components/metisMenu/dist/metisMenu.min.css') }}" rel="stylesheet">
+    <link href="{{ url('admin/css/metisMenu.min.css') }}" rel="stylesheet"/>
 
     <!-- Custom CSS -->
-    <link href="{{ url('admin/dist/css/sb-admin-2.css') }}" rel="stylesheet">
+    <link href="{{ url('admin/css/sb-admin-2.css') }}" rel="stylesheet"/>
 
     <!-- Custom Fonts -->
-    <link href="{{ url('admin/bower_components/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ url('admin/css/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css"/>
 
     <!-- DataTables CSS -->
-    <link href="{{ url('admin/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ url('admin/css/dataTables.bootstrap.css') }}" rel="stylesheet"/>
 
     <!-- DataTables Responsive CSS -->
-    <link href="{{ url('admin/bower_components/datatables-responsive/css/dataTables.responsive.css') }}" rel="stylesheet">
+    <link href="{{ url('admin/css/dataTables.responsive.css') }}" rel="stylesheet"/>
 </head>
-
 <body>
-@if(Auth::check()){
 <div id="wrapper">
 
     <!-- Navigation -->
@@ -48,10 +46,10 @@
             <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                    <i class="fa fa-user fa-fw"></i><i class="fa fa-caret-down"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-user">
-                    <li><a href="#"><i class="fa fa-user fa-fw"></i>{{ Auth::user()->name }}</a>
+                    <li><a href="#"><i class="fa fa-user fa-fw"></i>{{ isset(Auth::user()->name)? Auth::user()->name : 'guest' }}</a>
                     </li>
                     <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
                     </li>
@@ -146,26 +144,24 @@
     <!-- /#page-wrapper -->
 </div>
 <!-- /#wrapper -->
-@endif
 <!-- jQuery -->
-<script src="{{ url('admin/bower_components/jquery/dist/jquery.min.js') }}"></script>
+<script src="{{ url('admin/js/jquery.min.js') }}"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="{{ url('admin/bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+<script src="{{ url('admin/js/bootstrap.min.js') }}"></script>
 
 <!-- Metis Menu Plugin JavaScript -->
-<script src="{{ url('admin/bower_components/metisMenu/dist/metisMenu.min.js') }}"></script>
+<script src="{{ url('admin/js/metisMenu.min.js') }}"></script>
 
 <!-- Custom Theme JavaScript -->
-<script src="{{ url('admin/dist/js/sb-admin-2.js') }}"></script>
+<script src="{{ url('admin/js/sb-admin-2.js') }}"></script>
 
 <!-- DataTables JavaScript -->
-<script src="{{ url('admin/bower_components/DataTables/media/js/jquery.dataTables.min.js') }}"></script>
-<script src="{{ url('admin/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js') }}"></script>
+<script src="{{ url('admin/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ url('admin/js/dataTables.bootstrap.min.js') }}"></script>
 
 <!-- Page-Level Demo Scripts - Tables - Use for reference -->
 <!-- myscript -->
 <script src="{{ url('admin/js/myscript.js') }}"></script>
 </body>
-
 </html>

@@ -33,8 +33,8 @@
                     <h3 class="panel-title">Please Log In</h3>
                 </div>
                 <div class="panel-body">
-                    <form method="POST" action="/auth/login">
-                        {!! csrf_field() !!}
+                    <form method="POST" action="{{ url('/auth/login') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}"/>
                         <fieldset>
                             <div class="form-group">
                                 Email
