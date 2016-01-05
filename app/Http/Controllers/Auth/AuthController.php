@@ -28,7 +28,7 @@ class AuthController extends Controller
      *
      * @return void
      */
-    protected $redirectPath = '/';
+    protected $redirectPath = '/auth/login';
     public function __construct()
     {
         $this->middleware('guest', ['except' => 'getLogout']);
@@ -40,31 +40,31 @@ class AuthController extends Controller
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
-    public function getLogin(){
-        return view('admin.login');
-    }
-
-    public function postLogin(LoginRequest $request){
-        $auth = array('email' => $request->email,
-                'password' => $request->password
-            );
-        if(Auth::attempt($auth)){
-            return redirect()->route('admin.dashboard');
-        } else {
-            return redirect()->route('admin.getLogin')->with(['flash_level'=> 'danger', 'flash_message' => 'Email hoặc password chưa đúng, vui lòng nhập lại!']);;
-        }
-    }
-
+//    public function getLogin(){
+//        return view('admin.login');
+//    }
+//
+//    public function postLogin(LoginRequest $request){
+//        $auth = array('email' => $request->email,
+//                'password' => $request->password
+//            );
+//        if(Auth::attempt($auth)){
+//            return redirect()->route('admin.dashboard');
+//        } else {
+//            return redirect()->back()->with(['flash_level'=> 'danger', 'flash_message' => 'Email hoặc password chưa đúng, vui lòng nhập lại!']);;
+//        }
+//    }
+//
     public function dashboard(){
         return view('admin.master');
     }
-
-    public function getLogout(){
-        if(Auth::check()){
-            Auth::logout();
-            return redirect()->route('admin.getLogin');
-        }
-    }
+//
+//    public function getLogout(){
+//        if(Auth::check()){
+//            Auth::logout();
+//            return redirect()->route('admin.getLogin');
+//        }
+//    }
 
     protected function validator(array $data)
     {

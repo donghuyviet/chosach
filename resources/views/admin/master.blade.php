@@ -1,5 +1,4 @@
-@if(Auth::check()){
-<!DOCTYPE html>
+<!DOCTYPE html
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -29,7 +28,7 @@
 </head>
 
 <body>
-
+@if(Auth::check()){
 <div id="wrapper">
 
     <!-- Navigation -->
@@ -52,12 +51,12 @@
                     <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-user">
-                    <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                    <li><a href="#"><i class="fa fa-user fa-fw"></i>{{ Auth::user()->name }}</a>
                     </li>
                     <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
                     </li>
                     <li class="divider"></li>
-                    <li><a href="{!! route('admin.logout')!!}"><i class="fa fa-sign-out fa-fw">Logout</i></a>
+                    <li><a href="{!! route('logout')!!}"><i class="fa fa-sign-out fa-fw">Logout</i></a>
                     </li>
                 </ul>
                 <!-- /.dropdown-user -->
@@ -111,7 +110,7 @@
                         <a href="#"><i class="fa fa-users fa-fw"></i> User<span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level">
                             <li>
-                                <a href="#">List User</a>
+                                <a href="{{ route('user.index') }}">List User</a>
                             </li>
                             <li>
                                 <a href="{{ route('user.create') }}">Add User</a>
@@ -147,7 +146,7 @@
     <!-- /#page-wrapper -->
 </div>
 <!-- /#wrapper -->
-
+@endif
 <!-- jQuery -->
 <script src="{{ url('admin/bower_components/jquery/dist/jquery.min.js') }}"></script>
 
@@ -170,4 +169,3 @@
 </body>
 
 </html>
-@endif

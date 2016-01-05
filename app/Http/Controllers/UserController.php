@@ -18,7 +18,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        $data = User::select('id', 'name', 'email')->get()->toArray();
+        return view('admin.user.list', compact('data'));
     }
 
     /**
@@ -43,7 +44,8 @@ class UserController extends Controller
         $user->name = $request->txtUser;
         $user->email= $request->txtEmail;
         $user->password = Hash::make($request->txtPass);
-        $user->save();       
+        $user->save();      
+        return redirect()->route('user.index');
     }
 
     /**
@@ -65,7 +67,8 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
+        $data = User::findOrFail($id);
+        return view('admin.user.edit', compact('data'));
     }
 
     /**
