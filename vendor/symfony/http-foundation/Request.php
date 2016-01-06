@@ -700,30 +700,37 @@ class Request
     }
 
     /**
-     * Gets a "parameter" value from any bag.
+     * Gets a "parameter" value.
      *
-     * This method is mainly useful for libraries that want to provide some flexibility. If you don't need the
-     * flexibility in controllers, it is better to explicitly get request parameters from the appropriate
-     * public property instead (attributes, query, request).
+     * This method is mainly useful for libraries that want to provide some flexibility.
      *
-     * Order of precedence: PATH (routing placeholders or custom attributes), GET, BODY
+     * Order of precedence: GET, PATH, POST
+     *
+     * Avoid using this method in controllers:
+     *
+     *  * slow
+     *  * prefer to get from a "named" source
+     *
+     * It is better to explicitly get request parameters from the appropriate
+     * public property instead (query, attributes, request).
      *
      * @param string $key     the key
      * @param mixed  $default the default value
+     * @param bool   $deep    is parameter deep in multidimensional array
      *
      * @return mixed
      */
-    public function get($key, $default = null)
+    public function get($key, $default = null, $deep = false)
     {
-        if ($this !== $result = $this->attributes->get($key, $this)) {
+        if ($this !== $result = $this->query->get($key, $this, $deep)) {
             return $result;
         }
 
-        if ($this !== $result = $this->query->get($key, $this)) {
+        if ($this !== $result = $this->attributes->get($key, $this, $deep)) {
             return $result;
         }
 
-        if ($this !== $result = $this->request->get($key, $this)) {
+        if ($this !== $result = $this->request->get($key, $this, $deep)) {
             return $result;
         }
 
@@ -1365,7 +1372,7 @@ class Request
     public function getRequestFormat($default = 'html')
     {
         if (null === $this->format) {
-            $this->format = $this->attributes->get('_format', $default);
+            $this->format = $this->get('_format', $default);
         }
 
         return $this->format;

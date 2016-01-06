@@ -11,14 +11,14 @@
 
 namespace Symfony\Component\DomCrawler;
 
-use Symfony\Component\CssSelector\CssSelectorConverter;
+use Symfony\Component\CssSelector\CssSelector;
 
 /**
  * Crawler eases navigation of a list of \DOMElement objects.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Crawler implements \Countable, \IteratorAggregate
+class Crawler extends \SplObjectStorage
 {
     /**
      * @var string The current URI
@@ -41,23 +41,6 @@ class Crawler implements \Countable, \IteratorAggregate
     private $baseHref;
 
     /**
-     * @var \DOMDocument|null
-     */
-    private $document;
-
-    /**
-     * @var \DOMElement[]
-     */
-    private $nodes = array();
-
-    /**
-     * Whether the Crawler contains HTML or XML content (used when converting CSS to XPath).
-     *
-     * @var bool
-     */
-    private $isHtml = true;
-
-    /**
      * Constructor.
      *
      * @param mixed  $node       A Node to use as the base for the crawling
@@ -77,8 +60,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function clear()
     {
-        $this->nodes = array();
-        $this->document = null;
+        $this->removeAll($this);
     }
 
     /**
@@ -178,7 +160,34 @@ class Crawler implements \Countable, \IteratorAggregate
 
         try {
             // Convert charset to HTML-entities to work around bugs in DOMDocument::loadHTML()
-            $content = mb_convert_encoding($content, 'HTML-ENTITIES', $charset);
+
+            if (function_exists('mb_convert_encoding')) {
+                $content = mb_convert_encoding($content, 'HTML-ENTITIES', $charset);
+            } elseif (function_exists('iconv')) {
+                $content = preg_replace_callback(
+                    '/[\x80-\xFF]+/',
+                    function ($m) {
+                        $m = unpack('C*', $m[0]);
+                        $i = 1;
+                        $entities = '';
+
+                        while (isset($m[$i])) {
+                            if (0xF0 <= $m[$i]) {
+                                $c = (($m[$i++] - 0xF0) << 18) + (($m[$i++] - 0x80) << 12) + (($m[$i++] - 0x80) << 6) + $m[$i++] - 0x80;
+                            } elseif (0xE0 <= $m[$i]) {
+                                $c = (($m[$i++] - 0xE0) << 12) + (($m[$i++] - 0x80) << 6) + $m[$i++]  - 0x80;
+                            } else {
+                                $c = (($m[$i++] - 0xC0) << 6) + $m[$i++] - 0x80;
+                            }
+
+                            $entities .= '&#'.$c.';';
+                        }
+
+                        return $entities;
+                    },
+                    iconv($charset, 'UTF-8', $content)
+                );
+            }
         } catch (\Exception $e) {
         }
 
@@ -242,8 +251,6 @@ class Crawler implements \Countable, \IteratorAggregate
         libxml_disable_entity_loader($disableEntities);
 
         $this->addDocument($dom);
-
-        $this->isHtml = false;
     }
 
     /**
@@ -292,27 +299,21 @@ class Crawler implements \Countable, \IteratorAggregate
     public function addNode(\DOMNode $node)
     {
         if ($node instanceof \DOMDocument) {
-            $node = $node->documentElement;
+            $this->attach($node->documentElement);
+        } else {
+            $this->attach($node);
         }
+    }
 
-        if (!$node instanceof \DOMElement) {
-            throw new \InvalidArgumentException(sprintf('Nodes set in a Crawler must be DOMElement or DOMDocument instances, "%s" given.', get_class($node)));
-        }
+    // Serializing and unserializing a crawler creates DOM objects in a corrupted state. DOM elements are not properly serializable.
+    public function unserialize($serialized)
+    {
+        throw new \BadMethodCallException('A Crawler cannot be serialized.');
+    }
 
-        if (null !== $this->document && $this->document !== $node->ownerDocument) {
-            throw new \InvalidArgumentException('Attaching DOM nodes from multiple documents in the same crawler is forbidden.');
-        }
-
-        if (null === $this->document) {
-            $this->document = $node->ownerDocument;
-        }
-
-        // Don't add duplicate nodes in the Crawler
-        if (in_array($node, $this->nodes, true)) {
-            return;
-        }
-
-        $this->nodes[] = $node;
+    public function serialize()
+    {
+        throw new \BadMethodCallException('A Crawler cannot be serialized.');
     }
 
     /**
@@ -324,8 +325,10 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function eq($position)
     {
-        if (isset($this->nodes[$position])) {
-            return $this->createSubCrawler($this->nodes[$position]);
+        foreach ($this as $i => $node) {
+            if ($i == $position) {
+                return $this->createSubCrawler($node);
+            }
         }
 
         return $this->createSubCrawler(null);
@@ -350,7 +353,7 @@ class Crawler implements \Countable, \IteratorAggregate
     public function each(\Closure $closure)
     {
         $data = array();
-        foreach ($this->nodes as $i => $node) {
+        foreach ($this as $i => $node) {
             $data[] = $closure($this->createSubCrawler($node), $i);
         }
 
@@ -365,9 +368,9 @@ class Crawler implements \Countable, \IteratorAggregate
      *
      * @return Crawler A Crawler instance with the sliced nodes
      */
-    public function slice($offset = 0, $length = null)
+    public function slice($offset = 0, $length = -1)
     {
-        return $this->createSubCrawler(array_slice($this->nodes, $offset, $length));
+        return $this->createSubCrawler(iterator_to_array(new \LimitIterator($this, $offset, $length)));
     }
 
     /**
@@ -382,7 +385,7 @@ class Crawler implements \Countable, \IteratorAggregate
     public function reduce(\Closure $closure)
     {
         $nodes = array();
-        foreach ($this->nodes as $i => $node) {
+        foreach ($this as $i => $node) {
             if (false !== $closure($this->createSubCrawler($node), $i)) {
                 $nodes[] = $node;
             }
@@ -408,7 +411,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function last()
     {
-        return $this->eq(count($this->nodes) - 1);
+        return $this->eq(count($this) - 1);
     }
 
     /**
@@ -420,7 +423,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function siblings()
     {
-        if (!$this->nodes) {
+        if (!count($this)) {
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
@@ -436,7 +439,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function nextAll()
     {
-        if (!$this->nodes) {
+        if (!count($this)) {
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
@@ -452,7 +455,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function previousAll()
     {
-        if (!$this->nodes) {
+        if (!count($this)) {
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
@@ -468,7 +471,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function parents()
     {
-        if (!$this->nodes) {
+        if (!count($this)) {
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
@@ -493,7 +496,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function children()
     {
-        if (!$this->nodes) {
+        if (!count($this)) {
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
@@ -513,7 +516,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function attr($attribute)
     {
-        if (!$this->nodes) {
+        if (!count($this)) {
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
@@ -531,7 +534,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function nodeName()
     {
-        if (!$this->nodes) {
+        if (!count($this)) {
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
@@ -547,7 +550,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function text()
     {
-        if (!$this->nodes) {
+        if (!count($this)) {
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
@@ -563,7 +566,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function html()
     {
-        if (!$this->nodes) {
+        if (!count($this)) {
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
@@ -594,7 +597,7 @@ class Crawler implements \Countable, \IteratorAggregate
         $count = count($attributes);
 
         $data = array();
-        foreach ($this->nodes as $node) {
+        foreach ($this as $node) {
             $elements = array();
             foreach ($attributes as $attribute) {
                 if ('_text' === $attribute) {
@@ -647,14 +650,12 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function filter($selector)
     {
-        if (!class_exists('Symfony\\Component\\CssSelector\\CssSelectorConverter')) {
-            throw new \RuntimeException('Unable to filter with a CSS selector as the Symfony CssSelector 2.8+ is not installed (you can use filterXPath instead).');
+        if (!class_exists('Symfony\\Component\\CssSelector\\CssSelector')) {
+            throw new \RuntimeException('Unable to filter with a CSS selector as the Symfony CssSelector is not installed (you can use filterXPath instead).');
         }
 
-        $converter = new CssSelectorConverter($this->isHtml);
-
         // The CssSelector already prefixes the selector with descendant-or-self::
-        return $this->filterRelativeXPath($converter->toXPath($selector));
+        return $this->filterRelativeXPath(CssSelector::toXPath($selector));
     }
 
     /**
@@ -700,7 +701,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function link($method = 'get')
     {
-        if (!$this->nodes) {
+        if (!count($this)) {
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
@@ -717,7 +718,7 @@ class Crawler implements \Countable, \IteratorAggregate
     public function links()
     {
         $links = array();
-        foreach ($this->nodes as $node) {
+        foreach ($this as $node) {
             $links[] = new Link($node, $this->baseHref, 'get');
         }
 
@@ -736,7 +737,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function form(array $values = null, $method = null)
     {
-        if (!$this->nodes) {
+        if (!count($this)) {
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
@@ -830,14 +831,9 @@ class Crawler implements \Countable, \IteratorAggregate
 
         $crawler = $this->createSubCrawler(null);
 
-        foreach ($this->nodes as $node) {
+        foreach ($this as $node) {
             $domxpath = $this->createDOMXPath($node->ownerDocument, $prefixes);
-
-            foreach ($domxpath->query($xpath, $node) as $subNode) {
-                if ($subNode->nodeType === 1) {
-                    $crawler->add($subNode);
-                }
-            }
+            $crawler->add($domxpath->query($xpath, $node));
         }
 
         return $crawler;
@@ -874,7 +870,10 @@ class Crawler implements \Countable, \IteratorAggregate
                 $expression = substr($expression, strlen($parenthesis));
             }
 
-            if (0 === strpos($expression, 'self::*/')) {
+            // BC for Symfony 2.4 and lower were elements were adding in a fake _root parent
+            if (0 === strpos($expression, '/_root/')) {
+                $expression = './'.substr($expression, 7);
+            } elseif (0 === strpos($expression, 'self::*/')) {
                 $expression = './'.substr($expression, 8);
             }
 
@@ -889,7 +888,12 @@ class Crawler implements \Countable, \IteratorAggregate
                 $expression = 'self::'.substr($expression, 2);
             } elseif (0 === strpos($expression, 'child::')) {
                 $expression = 'self::'.substr($expression, 7);
-            } elseif ('/' === $expression[0] || '.' === $expression[0] || 0 === strpos($expression, 'self::')) {
+            } elseif ('/' === $expression[0] || 0 === strpos($expression, 'self::')) {
+                // the only direct child in Symfony 2.4 and lower is _root, which is already handled previously
+                // so let's drop the expression entirely
+                $expression = $nonMatchingExpression;
+            } elseif ('.' === $expression[0]) {
+                // '.' is the fake root element in Symfony 2.4 and lower, which is excluded from results
                 $expression = $nonMatchingExpression;
             } elseif (0 === strpos($expression, 'descendant::')) {
                 $expression = 'descendant-or-self::'.substr($expression, strlen('descendant::'));
@@ -912,25 +916,11 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function getNode($position)
     {
-        if (isset($this->nodes[$position])) {
-            return $this->nodes[$position];
+        foreach ($this as $i => $node) {
+            if ($i == $position) {
+                return $node;
+            }
         }
-    }
-
-    /**
-     * @return int
-     */
-    public function count()
-    {
-        return count($this->nodes);
-    }
-
-    /**
-     * @return \ArrayIterator
-     */
-    public function getIterator()
-    {
-        return new \ArrayIterator($this->nodes);
     }
 
     /**
@@ -1020,8 +1010,6 @@ class Crawler implements \Countable, \IteratorAggregate
     private function createSubCrawler($nodes)
     {
         $crawler = new static($nodes, $this->uri, $this->baseHref);
-        $crawler->isHtml = $this->isHtml;
-        $crawler->document = $this->document;
 
         return $crawler;
     }

@@ -6,7 +6,6 @@ use App\User;
 use Illuminate\Auth\Events\Login;
 use Validator;
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use App\Http\Requests\LoginRequest;
 use Auth;
@@ -23,14 +22,7 @@ class AuthController extends Controller
     |
     */
 
-    use AuthenticatesAndRegistersUsers, ThrottlesLogins;
-
-    /**
-     * Where to redirect users after login / registration.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/home';
+    use AuthenticatesAndRegistersUsers;
 
     /**
      * Create a new authentication controller instance.
@@ -39,9 +31,30 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest', ['except' => 'logout']);
+        $this->middleware('guest', ['except' => 'getLogout']);
     }
 
+
+//    public function getLogin(){
+//        return view('admin.login');
+//    }
+//
+//    public function postLogin(LoginRequest $request){
+//        $auth = array('email' => $request->email,
+//                'password' => $request->password
+//            );
+//        if(Auth::attempt($auth)){
+//            return redirect()->route('admin.dashboard');
+//        } else {
+//            return redirect()->back()->with(['flash_level'=> 'danger', 'flash_message' => 'Email hoặc password chưa đúng, vui lòng nhập lại!']);;
+//        }
+//    }
+
+    public function dashboard(){
+        return view('admin.master');
+    }
+
+<<<<<<< HEAD
     public function getLogin(){
         return view('admin.login');
     }
@@ -60,6 +73,14 @@ class AuthController extends Controller
         return view('admin.master');
     }
 
+=======
+//    public function getLogout(){
+//        if(Auth::check()){
+//            Auth::logout();
+//            return redirect()->route('admin.getLogin');
+//        }
+//    }
+>>>>>>> refs/remotes/origin/quannh
     /**
      * Get a validator for an incoming registration request.
      *

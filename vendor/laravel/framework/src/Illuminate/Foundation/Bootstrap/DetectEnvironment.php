@@ -2,7 +2,7 @@
 
 namespace Illuminate\Foundation\Bootstrap;
 
-use Dotenv\Dotenv;
+use Dotenv;
 use InvalidArgumentException;
 use Illuminate\Contracts\Foundation\Application;
 
@@ -16,12 +16,14 @@ class DetectEnvironment
      */
     public function bootstrap(Application $app)
     {
-        if (! $app->configurationIsCached()) {
-            try {
-                (new Dotenv($app->environmentPath(), $app->environmentFile()))->load();
-            } catch (InvalidArgumentException $e) {
-                //
-            }
+        try {
+            Dotenv::load($app->environmentPath(), $app->environmentFile());
+        } catch (InvalidArgumentException $e) {
+            //
         }
+
+        $app->detectEnvironment(function () {
+            return env('APP_ENV', 'production');
+        });
     }
 }

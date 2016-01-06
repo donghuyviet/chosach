@@ -10,8 +10,6 @@ use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
 
 class DatabaseStore implements Store
 {
-    use RetrievesMultipleKeys;
-
     /**
      * The database connection instance.
      *
@@ -60,7 +58,7 @@ class DatabaseStore implements Store
     /**
      * Retrieve an item from the cache by key.
      *
-     * @param  string|array  $key
+     * @param  string  $key
      * @return mixed
      */
     public function get($key)

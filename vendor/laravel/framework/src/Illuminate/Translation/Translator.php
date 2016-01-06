@@ -3,7 +3,6 @@
 namespace Illuminate\Translation;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\NamespacedItemResolver;
 use Symfony\Component\Translation\MessageSelector;
@@ -150,11 +149,7 @@ class Translator extends NamespacedItemResolver implements TranslatorInterface
         $replace = $this->sortReplacements($replace);
 
         foreach ($replace as $key => $value) {
-            $line = str_replace(
-                [':'.Str::upper($key), ':'.Str::ucfirst($key), ':'.$key],
-                [Str::upper($value), Str::ucfirst($value), $value],
-                $line
-            );
+            $line = str_replace(':'.$key, $value, $line);
         }
 
         return $line;

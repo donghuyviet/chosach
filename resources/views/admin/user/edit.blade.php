@@ -15,7 +15,11 @@
                         <form action="" method="POST">
                             <div class="form-group">
                                 <label>Username</label>
+<<<<<<< HEAD
                                 <input class="form-control" name="txtUser" value="quoctuan" disabled />
+=======
+                                <input class="form-control" name="txtUser" value="{{ $data->name }}" disabled />
+>>>>>>> refs/remotes/origin/quannh
                             </div>
                             <div class="form-group">
                                 <label>Password</label>

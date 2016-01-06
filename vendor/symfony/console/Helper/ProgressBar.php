@@ -13,7 +13,6 @@ namespace Symfony\Component\Console\Helper;
 
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Exception\LogicException;
 
 /**
  * The ProgressBar provides helpers to display progress output.
@@ -68,10 +67,8 @@ class ProgressBar
             // disable overwrite when output does not support ANSI codes.
             $this->overwrite = false;
 
-            if ($this->max > 10) {
-                // set a reasonable redraw frequency so output isn't flooded
-                $this->setRedrawFrequency($max / 10);
-            }
+            // set a reasonable redraw frequency so output isn't flooded
+            $this->setRedrawFrequency($max / 10);
         }
 
         $this->startTime = time();
@@ -85,7 +82,7 @@ class ProgressBar
      * @param string   $name     The placeholder name (including the delimiter char like %)
      * @param callable $callable A PHP callable
      */
-    public static function setPlaceholderFormatterDefinition($name, callable $callable)
+    public static function setPlaceholderFormatterDefinition($name, $callable)
     {
         if (!self::$formatters) {
             self::$formatters = self::initPlaceholderFormatters();
@@ -174,6 +171,20 @@ class ProgressBar
     }
 
     /**
+     * Gets the progress bar step.
+     *
+     * @deprecated since version 2.6, to be removed in 3.0. Use {@link getProgress()} instead.
+     *
+     * @return int The progress bar step
+     */
+    public function getStep()
+    {
+        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.6 and will be removed in 3.0. Use the getProgress() method instead.', E_USER_DEPRECATED);
+
+        return $this->getProgress();
+    }
+
+    /**
      * Gets the current step position.
      *
      * @return int The progress bar step
@@ -186,9 +197,11 @@ class ProgressBar
     /**
      * Gets the progress bar step width.
      *
+     * @internal This method is public for PHP 5.3 compatibility, it should not be used.
+     *
      * @return int The progress bar step width
      */
-    private function getStepWidth()
+    public function getStepWidth()
     {
         return $this->stepWidth;
     }
@@ -301,11 +314,11 @@ class ProgressBar
     /**
      * Sets the redraw frequency.
      *
-     * @param int $freq The frequency in steps
+     * @param int|float $freq The frequency in steps
      */
     public function setRedrawFrequency($freq)
     {
-        $this->redrawFreq = (int) $freq;
+        $this->redrawFreq = max((int) $freq, 1);
     }
 
     /**
@@ -331,11 +344,27 @@ class ProgressBar
      *
      * @param int $step Number of steps to advance
      *
-     * @throws LogicException
+     * @throws \LogicException
      */
     public function advance($step = 1)
     {
         $this->setProgress($this->step + $step);
+    }
+
+    /**
+     * Sets the current progress.
+     *
+     * @deprecated since version 2.6, to be removed in 3.0. Use {@link setProgress()} instead.
+     *
+     * @param int $step The current progress
+     *
+     * @throws \LogicException
+     */
+    public function setCurrent($step)
+    {
+        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.6 and will be removed in 3.0. Use the setProgress() method instead.', E_USER_DEPRECATED);
+
+        $this->setProgress($step);
     }
 
     /**
@@ -353,13 +382,13 @@ class ProgressBar
      *
      * @param int $step The current progress
      *
-     * @throws LogicException
+     * @throws \LogicException
      */
     public function setProgress($step)
     {
         $step = (int) $step;
         if ($step < $this->step) {
-            throw new LogicException('You can\'t regress the progress bar.');
+            throw new \LogicException('You can\'t regress the progress bar.');
         }
 
         if ($this->max && $step > $this->max) {
@@ -405,11 +434,15 @@ class ProgressBar
             $this->setRealFormat($this->internalFormat ?: $this->determineBestFormat());
         }
 
-        $this->overwrite(preg_replace_callback("{%([a-z\-_]+)(?:\:([^%]+))?%}i", function ($matches) {
-            if ($formatter = $this::getPlaceholderFormatterDefinition($matches[1])) {
-                $text = call_user_func($formatter, $this, $this->output);
-            } elseif (isset($this->messages[$matches[1]])) {
-                $text = $this->messages[$matches[1]];
+        // these 3 variables can be removed in favor of using $this in the closure when support for PHP 5.3 will be dropped.
+        $self = $this;
+        $output = $this->output;
+        $messages = $this->messages;
+        $this->overwrite(preg_replace_callback("{%([a-z\-_]+)(?:\:([^%]+))?%}i", function ($matches) use ($self, $output, $messages) {
+            if ($formatter = $self::getPlaceholderFormatterDefinition($matches[1])) {
+                $text = call_user_func($formatter, $self, $output);
+            } elseif (isset($messages[$matches[1]])) {
+                $text = $messages[$matches[1]];
             } else {
                 return $matches[0];
             }
@@ -545,7 +578,7 @@ class ProgressBar
             },
             'remaining' => function (ProgressBar $bar) {
                 if (!$bar->getMaxSteps()) {
-                    throw new LogicException('Unable to display the remaining time if the maximum number of steps is not set.');
+                    throw new \LogicException('Unable to display the remaining time if the maximum number of steps is not set.');
                 }
 
                 if (!$bar->getProgress()) {
@@ -558,7 +591,7 @@ class ProgressBar
             },
             'estimated' => function (ProgressBar $bar) {
                 if (!$bar->getMaxSteps()) {
-                    throw new LogicException('Unable to display the estimated time if the maximum number of steps is not set.');
+                    throw new \LogicException('Unable to display the estimated time if the maximum number of steps is not set.');
                 }
 
                 if (!$bar->getProgress()) {

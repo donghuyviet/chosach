@@ -197,7 +197,7 @@ class Gate implements GateContract
     {
         try {
             $result = $this->raw($ability, $arguments);
-        } catch (AuthorizationException $e) {
+        } catch (UnauthorizedException $e) {
             return false;
         }
 
@@ -211,7 +211,7 @@ class Gate implements GateContract
      * @param  array|mixed  $arguments
      * @return \Illuminate\Auth\Access\Response
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Auth\Access\UnauthorizedException
      */
     public function authorize($ability, $arguments = [])
     {

@@ -34,17 +34,18 @@ class VerifyPostSize
     {
         $postMaxSize = ini_get('post_max_size');
 
-        $metric = strtoupper(substr($postMaxSize, -1));
-
-        switch ($metric) {
-            case 'K':
-                return (int) $postMaxSize * 1024;
+        switch (substr($postMaxSize, -1)) {
             case 'M':
+            case 'm':
                 return (int) $postMaxSize * 1048576;
+            case 'K':
+            case 'k':
+                return (int) $postMaxSize * 1024;
             case 'G':
+            case 'g':
                 return (int) $postMaxSize * 1073741824;
-            default:
-                return (int) $postMaxSize;
         }
+
+        return (int) $postMaxSize;
     }
 }

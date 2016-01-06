@@ -13,7 +13,7 @@ class Filesystem
     use Macroable;
 
     /**
-     * Determine if a file or directory exists.
+     * Determine if a file exists.
      *
      * @param  string  $path
      * @return bool

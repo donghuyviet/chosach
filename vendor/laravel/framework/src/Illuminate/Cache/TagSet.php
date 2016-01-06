@@ -97,14 +97,4 @@ class TagSet
     {
         return 'tag:'.$name.':key';
     }
-
-    /**
-     * Get all of the tag names in the set.
-     *
-     * @return array
-     */
-    public function getNames()
-    {
-        return $this->names;
-    }
 }
