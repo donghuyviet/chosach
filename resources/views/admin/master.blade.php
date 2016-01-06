@@ -9,22 +9,22 @@
     <title>Admin - Khoa Phạm</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="{{ url('admin/css/bootstrap.min.css') }}" rel="stylesheet"/>
+    <link href="{{ url('public/admin/css/bootstrap.min.css') }}" rel="stylesheet"/>
 
     <!-- MetisMenu CSS -->
-    <link href="{{ url('admin/css/metisMenu.min.css') }}" rel="stylesheet"/>
+    <link href="{{ url('public/admin/css/metisMenu.min.css') }}" rel="stylesheet"/>
 
     <!-- Custom CSS -->
-    <link href="{{ url('admin/css/sb-admin-2.css') }}" rel="stylesheet"/>
+    <link href="{{ url('public/admin/css/sb-admin-2.css') }}" rel="stylesheet"/>
 
     <!-- Custom Fonts -->
-    <link href="{{ url('admin/css/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ url('public/admin/css/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css"/>
 
     <!-- DataTables CSS -->
-    <link href="{{ url('admin/css/dataTables.bootstrap.css') }}" rel="stylesheet"/>
+    <link href="{{ url('public/admin/css/dataTables.bootstrap.css') }}" rel="stylesheet"/>
 
     <!-- DataTables Responsive CSS -->
-    <link href="{{ url('admin/css/dataTables.responsive.css') }}" rel="stylesheet"/>
+    <link href="{{ url('public/admin/css/dataTables.responsive.css') }}" rel="stylesheet"/>
 </head>
 <body>
 <div id="wrapper">
@@ -145,23 +145,23 @@
 </div>
 <!-- /#wrapper -->
 <!-- jQuery -->
-<script src="{{ url('admin/js/jquery.min.js') }}"></script>
+<script src="{{ url('public/admin/js/jquery.min.js') }}"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="{{ url('admin/js/bootstrap.min.js') }}"></script>
+<script src="{{ url('public/admin/js/bootstrap.min.js') }}"></script>
 
 <!-- Metis Menu Plugin JavaScript -->
-<script src="{{ url('admin/js/metisMenu.min.js') }}"></script>
+<script src="{{ url('public/admin/js/metisMenu.min.js') }}"></script>
 
 <!-- Custom Theme JavaScript -->
-<script src="{{ url('admin/js/sb-admin-2.js') }}"></script>
+<script src="{{ url('public/admin/js/sb-admin-2.js') }}"></script>
 
 <!-- DataTables JavaScript -->
-<script src="{{ url('admin/js/jquery.dataTables.min.js') }}"></script>
-<script src="{{ url('admin/js/dataTables.bootstrap.min.js') }}"></script>
+<script src="{{ url('public/admin/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ url('public/admin/js/dataTables.bootstrap.min.js') }}"></script>
 
 <!-- Page-Level Demo Scripts - Tables - Use for reference -->
 <!-- myscript -->
-<script src="{{ url('admin/js/myscript.js') }}"></script>
+<script src="{{ url('public/admin/js/myscript.js') }}"></script>
 </body>
 </html>
