@@ -6,15 +6,10 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1 class="page-header">User
-                            <small>Add</small>
-                        </h1>
+                        <h1 class="page-header">Add User </h1>
                     </div>
                     <!-- /.col-lg-12 -->
                     <div class="col-lg-7" style="padding-bottom:120px">
-<<<<<<< HEAD
-                        <form action="" method="POST">
-=======
                         @if(count($errors) > 0)
                             <div class="alert alert-danger">
                                 <ul>
@@ -29,7 +24,6 @@
                         @endif
                         <form action="{{ route('user.store') }}" method="POST">
                             {!! csrf_field() !!}
->>>>>>> refs/remotes/origin/quannh
                             <div class="form-group">
                                 <label>Username</label>
                                 <input class="form-control" name="txtUser" placeholder="Please Enter Username" />

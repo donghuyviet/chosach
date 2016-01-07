@@ -34,17 +34,8 @@ Route::group(['namespace' => 'Auth'], function(){
 		});
 	Route::get('dashboard', ['middleware' => 'auth','uses'	=> 'AuthController@dashboard']);
 });
-<<<<<<< HEAD
-
-Route::group(['prefix'=> 'admin'], function(){
-    Route::get('login', ['as' => 'admin.getLogin', 'uses' => 'Auth\AuthController@getLogin']);
-    Route::post('login', ['as' => 'admin.postLogin' , 'uses'=> 'Auth\AuthController@postLogin']);
-    Route::get('dashboard', ['as'=> 'admin.dashboard', 'uses'=> 'Auth\AuthController@dashboard']);
-});
-=======
 //Route::resource('user', 'UserController');
 Route::group(['middleware' => 'admin'], function()
 {
 	Route::resource('user', 'UserController');
 });
->>>>>>> refs/remotes/origin/quannh

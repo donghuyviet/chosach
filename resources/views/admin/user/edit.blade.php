@@ -6,20 +6,14 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1 class="page-header">User
-                            <small>Edit</small>
-                        </h1>
+                        <h1 class="page-header">Edit User </h1>
                     </div>
                     <!-- /.col-lg-12 -->
                     <div class="col-lg-7" style="padding-bottom:120px">
                         <form action="" method="POST">
                             <div class="form-group">
                                 <label>Username</label>
-<<<<<<< HEAD
-                                <input class="form-control" name="txtUser" value="quoctuan" disabled />
-=======
                                 <input class="form-control" name="txtUser" value="{{ $data->name }}" disabled />
->>>>>>> refs/remotes/origin/quannh
                             </div>
                             <div class="form-group">
                                 <label>Password</label>

@@ -13,11 +13,7 @@ return [
     |
     */
 
-<<<<<<< HEAD
-    'debug' => env('APP_DEBUG', true),
-=======
     'debug' => env('APP_DEBUG'),
->>>>>>> refs/remotes/origin/quannh
 
     /*
     |--------------------------------------------------------------------------

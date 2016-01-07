@@ -43,7 +43,7 @@ class UserController extends Controller
         $user = new User;
         $user->name = $request->txtUser;
         $user->email= $request->txtEmail;
-        $user->password = Hash::make($request->txtPass);
+        $user->password = Hash::make($request->txtPass).'hello';
         $user->save();      
         return redirect()->route('user.index');
     }
