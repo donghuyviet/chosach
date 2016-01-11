@@ -24,7 +24,7 @@
                         <tbody>
                             @foreach($data as $item)
                             <tr class="odd gradeX" align="center">
-                                <td>1</td>
+                                <td>{{$item ['id']}}</td>
                                 <td>{{ $item['name'] }}</td>
                                 <td>{{ $item['email'] }}</td>
                                 <td>Hiện</td>
